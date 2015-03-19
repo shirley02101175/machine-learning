@@ -1,0 +1,3 @@
+import word
+category = word.pickword()
+print category
