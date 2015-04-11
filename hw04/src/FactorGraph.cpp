@@ -57,6 +57,14 @@ void VariableNode::BeliefPropagation(double* diff_max, bool labeled_given)
     for (int i = 0; i < neighbor.size(); i ++)
     {
         FactorNode* f = (FactorNode*) neighbor[i];
+	for (int y = 0; y < num_label; y ++)        
+        {
+            product = this->state_factor[y];
+            for (int j = 0; j < neighbor.size(); j ++)
+                if (i != j)
+                    product *= this->belief[j][y];
+            msg[y] = product;
+        }
         
         // Calculate the beliefs and store them to msg (has been decalred)
         // PLEASE FILL THE CODES BELOW:
@@ -64,6 +72,7 @@ void VariableNode::BeliefPropagation(double* diff_max, bool labeled_given)
         NormalizeMessage();
         f->GetMessageFrom(id, msg, diff_max);
     }
+    
 }
 
 /*
@@ -99,6 +108,35 @@ void FactorNode::BeliefPropagation(double* diff_max, bool labeled_given)
 	}
     else
     {
+      for (int i = 0; i < 3; i ++)    
+	{
+	  if (labeled_given && ((VariableNode*)neighbor[i])->label_type == Enum::KNOWN_LABEL)
+	    {
+	      for (int y = 0; y < num_label; y ++)
+		msg[y] = 0;
+	      msg[((VariableNode*)neighbor[i])->y] = 1.0;
+	    }
+	  else
+	    {
+	      for (int y = 0; y < num_label; y ++)
+		{
+		  double s = -1e200;
+		  for (int y1 = 0; y1 < num_label; y1 ++)
+		    for (int y2 = 0; y2 < num_label; y2++)
+		      {
+			double b = belief[(i == 2) ? 0 : (i + 1)][y1] * belief[(i == 0) ? 2 : (i - 1)][y2];
+			double g = (i == 0) ? func->GetValue(y, y1, y2) : ((i == 1) ? func->GetValue(y2, y, y1) : func->GetValue(y1, y2, y));
+			double t = g * b;
+			if (t > s)
+			  s = t;
+		      }
+		  msg[y] = s;
+		}
+	      NormalizeMessage();
+	    }
+
+	  neighbor[i]->GetMessageFrom(id, msg, diff_max);
+	}
         // WHEN THERE ARE THREE NEIGHBORS
         // PLEASE FILL THE CODES BELOW:
         
