@@ -1,0 +1,52 @@
+* How to extract features for the dataset
+** Basic methods
+tf-idf & logistic regression
+** Detail
+First, we read all documents from =exam_place/train/[baseball | hockey]/=, get all words from the documents by split each document by space. Purge all special characters except a-zA-Z and turn all uppercase characters to downcase for better extraction.
+
+To avoid over-fitting, after the first step, we got two hashes which stores the words occurance rank of type baseball and hockey. To reduce the affects of common words which has no special relation with the type. We define, only when the occure frequency differs large enough, which is 2 times here, could be the real features. At the same time, tf-idf is also an effective way to avoid over-fitting after our pre-selection.
+
+* How to run your code, from data preprocessing to training/testing/evaluation, step by step.
+Code including rotate test is fully constructed for a one-command running.
+=ruby rotate.rb= will start the automatic process of feature extraction and rotate test. Ensure the following directory exists
++ =exam_place/train/baseball=
++ =exam_place/train/hockey=
++ =exam_place/test/baseball=
++ =exam_place/test/hockey=
+
+and your ruby version is over 1.9.3 (ruby -v), jruby is recommended from the cosideration of execution speed.
+
+* What’s the final average precision, recall and F1 Score.
+The output of one run, the test dataset size is =199(baseball) + 199(hockey) equals tp + fp + tn + fn= :
+#+begin_src
+$ ruby rotate.rb 
+ruby rotate.rb 
+[tp, tn, fp, fn]
+[184, 191, 8, 15]
+True:0.9422110552763819
+False:0.05778894472361809
+[tp, tn, fp, fn]
+[182, 195, 4, 17]
+True:0.9472361809045227
+False:0.052763819095477386
+[tp, tn, fp, fn]
+[190, 193, 6, 9]
+True:0.9623115577889447
+False:0.03768844221105527
+[tp, tn, fp, fn]
+[189, 195, 4, 10]
+True:0.964824120603015
+False:0.035175879396984924
+[tp, tn, fp, fn]
+[188, 197, 2, 11]
+True:0.9673366834170855
+False:0.032663316582914576
+#+end_src
+
+To calculate the final results.
+#+begin_src
+precision = [0.9583333333333334, 0.978494623655914, 0.9693877551020408, 0.9792746113989638, 0.9894736842105263] 
+recall = [0.9246231155778895, 0.914572864321608, 0.9547738693467337, 0.949748743718593, 0.9447236180904522]
+f1 = [0.9411764705882352, 0.9454545454545454, 0.9620253164556962, 0.9642857142857144, 0.9665809768637531] 
+f1_avg = 0.9559046047295888
+#+end_src
